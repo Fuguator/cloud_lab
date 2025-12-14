@@ -1,0 +1,29 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'instance']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'telegram'
+
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token: 'sometokern123:AAH4D5f6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0'
+        chat_id: 1234567890
+        parse_mode: 'HTML'
+        message: |
+          <b>Alert:</b> {{ .GroupLabels.alertname }}
+          <b>Severity:</b> {{ .CommonLabels.severity }}
+          <b>Instance:</b> {{ .CommonLabels.instance }}
+          <b>Summary:</b> {{ .CommonAnnotations.summary }}
+          <b>Description:</b> {{ .CommonAnnotations.description }}
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
